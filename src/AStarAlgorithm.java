@@ -1,5 +1,6 @@
 import java.util.*;
 
+//IF THIS DOESN't WORK, CHANGE TO THE ORIGINAL CONDITIONS OF GENERATE CHILDREN METHOD
 public class AStarAlgorithm
 {
     private int numRows;
@@ -58,13 +59,13 @@ public class AStarAlgorithm
     public ArrayList<Square> generateChildren(Square curr)
     {
         ArrayList<Square> children = new ArrayList<>();
-        if ( curr.getyCoor() > 0 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()-1)) )
+        if ( curr.getyCoor() > 0 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()-1)) && getSquare(curr.getxCoor(), curr.getyCoor()-1).getOutput() == 0)
             children.add( getSquare(curr.getxCoor(), curr.getyCoor()-1) );
-        if ( curr.getyCoor() < numCols - 1 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()+1)) )
+        if ( curr.getyCoor() < numCols - 1 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()+1)) && getSquare(curr.getxCoor(), curr.getyCoor()+1).getOutput() == 00)
             children.add( getSquare(curr.getxCoor(), curr.getyCoor()+1) );
-        if ( curr.getxCoor() > 0 && !walls.contains(getSquare(curr.getxCoor() - 1, curr.getyCoor())) )
+        if ( curr.getxCoor() > 0 && !walls.contains(getSquare(curr.getxCoor() - 1, curr.getyCoor())) && getSquare(curr.getxCoor() - 1, curr.getyCoor()).getOutput() == 0)
             children.add( getSquare(curr.getxCoor() - 1, curr.getyCoor()) );
-        if ( curr.getxCoor() < numRows - 1 && !walls.contains( getSquare(curr.getxCoor() + 1, curr.getyCoor())) )
+        if ( curr.getxCoor() < numRows - 1 && !walls.contains( getSquare(curr.getxCoor() + 1, curr.getyCoor())) && getSquare(curr.getxCoor() + 1, curr.getyCoor()).getOutput() == 0)
             children.add( getSquare(curr.getxCoor() + 1, curr.getyCoor()) );
         return children;
     } //generateChildren
@@ -83,6 +84,7 @@ public class AStarAlgorithm
         //path.add(start);
         Collections.reverse(path);
         System.out.println(displayPath(path));
+        System.out.println("number of visited squares: " + numOfVistedSquares);
         return path;
     } //getPath
 
@@ -112,7 +114,8 @@ public class AStarAlgorithm
 
                 for (Square newSquare : generateChildren(current))
                 {
-
+                    numOfVistedSquares++;
+                    newSquare.setOutput(newSquare.getOutput()+1);
                     if ( !newSquare.isWall() && !closed.contains(newSquare) )
                     {
                         if ( open.contains(newSquare) )
@@ -145,6 +148,18 @@ public class AStarAlgorithm
         for (Square curr : path)
         {
             result.append("(" + curr.getxCoor() + "," + curr.getyCoor() + "); ");
+        }
+        for (int i = 0; i < numRows; i++)
+        {
+            for (int j = 0; j < numCols; j++)
+            {
+                Square currSquare = getSquare(i, j);
+                if (currSquare.isWall())
+                    System.out.print("#");
+                else
+                    System.out.print(currSquare.getOutput());
+            }
+            System.out.println();
         }
         return result.toString();
     }
