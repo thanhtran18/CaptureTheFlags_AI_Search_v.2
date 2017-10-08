@@ -8,19 +8,29 @@ public class AStarAlgorithm
     private Square hero;
     private ArrayList<Square> allSquares;
     private Square flag;
+    //private ArrayList<Square> flags;
     private ArrayList<Square> walls;
-    private int numOfVistedSquares;
+    private int numOfVisitedSquares;
+    private int finalNumOfVisitedSquares;
     private int numOfConsideredOps;
 
     public AStarAlgorithm(int numRows, int numCols, Square hero, Square flag, ArrayList<Square> walls, ArrayList<Square> allSquares)
+    //public AStarAlgorithm(int numRows, int numCols, Square hero, ArrayList<Square> flags, ArrayList<Square> walls, ArrayList<Square> allSquares)
     {
         this.numRows = numRows;
         this.numCols = numCols;
         this.hero = hero;
         this.walls = walls;
         this.flag = flag;
+        //this.flags = flags;
         this.allSquares = allSquares;
-        numOfVistedSquares = 0;
+        for (Square square : allSquares)
+        {
+            if (!walls.contains(square))
+                square.setOutput(0);
+        }
+        numOfVisitedSquares = 0;
+        //finalNumOfVisitedSquares = 0;
         numOfConsideredOps = 0;
         /*
         for (int i = 0; i < numRows; i++)
@@ -83,84 +93,121 @@ public class AStarAlgorithm
         }
         //path.add(start);
         Collections.reverse(path);
-        System.out.println(displayPath(path));
-        System.out.println("number of visited squares: " + numOfVistedSquares);
+        //System.out.println(displayPath(path));
+        //System.out.println("number of visited squares: " + numOfVistedSquares);
         return path;
     } //getPath
 
-    public void updateSquare(Square currSquare, Square child)
+    public void updateSquare(Square currSquare, Square child, Square goal)
     {
         //update the child square
         child.setG(currSquare.getG() + 1);
-        child.setH(calculateH(child, flag));
+        child.setH(calculateH(child, goal));
         child.setParent(currSquare);
         child.setF(child.getG() + child.getH());
     } //updateSquare
 
-    public ArrayList<Square> processAStar(Square currSquare)
+    //public ArrayList<Square> processAStar(Square currSquare, ArrayList<Square> flags)
+    public ArrayList<Square> processAStar(Square currSquare, Square goal)
     {
-        if ( !currSquare.isDone(flag) )
-        {
-            Comparator<Square> comparator = new ComparableSquare();
-            Queue<Square> open = new PriorityQueue<>(10000, comparator);
-            HashSet<Square> closed = new HashSet<>();
-            open.add(currSquare);
-            while ( !open.isEmpty() )
+        //ArrayList<Square> solution = new ArrayList<>();
+        //for (Square goal : flags)
+        //{
+            //solution = new ArrayList<>();
+            if ( !currSquare.isDone(goal) )
             {
-                Square current = open.poll();
-                closed.add(current);
-                if (current.equals(flag))
-                    return getPath(current, flag);
-
-                for (Square newSquare : generateChildren(current))
+                Comparator<Square> comparator = new ComparableSquare();
+                Queue<Square> open = new PriorityQueue<>(10000, comparator);
+                HashSet<Square> closed = new HashSet<>();
+                open.add(currSquare);
+                while ( !open.isEmpty() )
                 {
-                    numOfVistedSquares++;
-                    newSquare.setOutput(newSquare.getOutput()+1);
-                    if ( !newSquare.isWall() && !closed.contains(newSquare) )
+                    Square current = open.poll();
+                    closed.add(current);
+                    if (current.equals(goal))
                     {
-                        if ( open.contains(newSquare) )
-                        {
-                            if ( newSquare.getG() > current.getG() + 1)
-                                updateSquare(current, newSquare);
-                        }
-                        else
-                        {
-                            updateSquare(current, newSquare);
-                            open.add(newSquare);
-                        }
+                        //solution = getPath(current, goal);
+                        //break;
+                        //finalNumOfVisitedSquares += numOfVisitedSquares;
+                        return getPath(current, goal);
                     }
-                }
+
+                    for (Square newSquare : generateChildren(current))
+                    {
+                        numOfVisitedSquares++;
+                        //finalNumOfVisitedSquares += numOfVisitedSquares;
+                        newSquare.setOutput(newSquare.getOutput()+1);
+                        newSquare.setTotalOutput(newSquare.getTotalOutput()+1);
+
+                        if ( !newSquare.isWall() && !closed.contains(newSquare) )
+                        {
+                            if ( open.contains(newSquare) )
+                            {
+                                if ( newSquare.getG() > current.getG() + 1)
+                                    updateSquare(current, newSquare, goal);
+                            }
+                            else
+                            {
+                                updateSquare(current, newSquare, goal);
+                                open.add(newSquare);
+                            }
+                        }
+                    } //for
+                } //while
             }
-        }
-        else
-        {
-            return getPath(currSquare, flag);
-            //System.out.println(displayPath(getPath(currSquare, flag)));
-        }
+            else
+            {
+                return getPath(currSquare, goal);
+                //solution = getPath(currSquare, goal);
+                //break;
+            }
+        //} //for
 
         return null;
+        //return solution;
 
     } //processAStar
 
     public String displayPath(ArrayList<Square> path)
     {
         StringBuilder result = new StringBuilder();
-        for (Square curr : path)
+        /*for (Square curr : path)
         {
             result.append("(" + curr.getxCoor() + "," + curr.getyCoor() + "); ");
-        }
+        }*/
         for (int i = 0; i < numRows; i++)
         {
             for (int j = 0; j < numCols; j++)
             {
                 Square currSquare = getSquare(i, j);
+
                 if (currSquare.isWall())
-                    System.out.print("#");
+                {
+                    if (i == 0 && j == 0)
+                        result.append("\n");
+                    //System.out.print("#");
+                    result.append("#");
+                }
                 else
-                    System.out.print(currSquare.getOutput());
+                    result.append(currSquare.getTotalOutput());
+                    //System.out.print(currSquare.getTotalOutput());
             }
-            System.out.println();
+            //System.out.println();
+            result.append("\n");
         }
+        //result.append("number of visited squares: " + finalNumOfVisitedSquares + "\n");
+        //System.out.println("number of visited squares: " + numOfVisitedSquares);
         return result.toString();
+    }
+
+
+    public int getFinalNumOfVisitedSquares()
+    {
+        return finalNumOfVisitedSquares;
+    }
+
+    public int getNumOfVisitedSquares()
+    {
+        return numOfVisitedSquares;
     }
 }

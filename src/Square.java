@@ -8,6 +8,7 @@ public class Square
     private int g;
     private int h;
     private int output;
+    private int totalOutput;
 
     public Square()
     {
@@ -19,9 +20,15 @@ public class Square
         g = 0;
         h = 0;
         if (isWall)
+        {
             output = -1;
+            totalOutput = -1;
+        }
         else
+        {
             output = 0;
+            totalOutput = 0;
+        }
     }
 
     public Square(int xCoor, int yCoor, boolean isWall, Square parent, int g, int h)
@@ -34,9 +41,15 @@ public class Square
         this.h = h;
         this.f = g + h;
         if (isWall)
+        {
             output = -1;
+            totalOutput = -1;
+        }
         else
+        {
             output = 0;
+            totalOutput = 0;
+        }
     }
 
     public Square(int xCoor, int yCoor)
@@ -49,9 +62,15 @@ public class Square
         this.h = 0;
         this.f = 0;
         if (isWall)
+        {
             output = -1;
+            totalOutput = -1;
+        }
         else
+        {
             output = 0;
+            totalOutput = 0;
+        }
     }
 
     public Square(int xCoor, int yCoor, boolean isWall)
@@ -64,9 +83,15 @@ public class Square
         this.h = 0;
         this.f = 0;
         if (isWall)
+        {
             output = -1;
+            totalOutput = -1;
+        }
         else
+        {
             output = 0;
+            totalOutput = 0;
+        }
     }
 
     @Override
@@ -158,5 +183,15 @@ public class Square
     public void setOutput(int output)
     {
         this.output = output;
+    }
+
+    public void setTotalOutput(int totalOutput)
+    {
+        this.totalOutput = totalOutput;
+    }
+
+    public int getTotalOutput()
+    {
+        return totalOutput;
     }
 }

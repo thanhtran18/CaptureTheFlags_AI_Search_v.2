@@ -21,8 +21,8 @@ public class A1Q2 {
             numRows = Integer.parseInt(size[0]);
             numCols = Integer.parseInt(size[1]);
             char[][] map = new char[numRows][numCols];
-            //ArrayList<Square> flags = new ArrayList<>();
-            Square flag = new Square();
+            ArrayList<Square> flags = new ArrayList<>();
+            //Square flag = new Square();
             Square hero = new Square();
             ArrayList<Square> allSquares = new ArrayList<>();
             ArrayList<Square> walls = new ArrayList<>();
@@ -35,8 +35,8 @@ public class A1Q2 {
                     map[lineCounter][j] = line.charAt(j);
                     if (map[lineCounter][j] == '!')
                     {
-                        flag = new Square(lineCounter, j, false);
-                        //flags.add(flag);
+                        Square flag = new Square(lineCounter, j, false);
+                        flags.add(flag);
                         allSquares.add(flag);
                     }
                     else if (map[lineCounter][j] == 'h')
@@ -60,20 +60,32 @@ public class A1Q2 {
 
                 input += line + "\n";
                 lineCounter++;
-            }
+            } //while
 
-            AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flag, walls, allSquares);
-            solver.processAStar(hero);
-            //input is correct
-            /*
-            for (int i = 0; i < map.length; i++)
+            //AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flags, walls, allSquares);
+            StringBuilder solutionMap = new StringBuilder();
+            int visitedNodes = 0;
+            int i = 1;
+            for (Square flag : flags)
             {
-                for (int j = 0; j < map[i].length; j++)
+                AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flag, walls, allSquares);
+                ArrayList<Square> solution = solver.processAStar(hero, flag);
+                hero = flag;
+                hero.setParent(null);
+                visitedNodes += solver.getNumOfVisitedSquares();
+
+                if (i == flags.size())
                 {
-                    System.out.print(map[i][j]);
+
+                    solutionMap.append(solver.displayPath(solution));
+
+                    System.out.println(solutionMap.toString());
                 }
-                System.out.println();
-            }*/
+                i++;
+
+            }
+            System.out.println("Number of visited nodes: " + visitedNodes);
+            //solver.processAStar(hero, flags);
 
         } //try
         catch (IOException ioe)
