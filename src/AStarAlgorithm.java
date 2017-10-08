@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 public class AStarAlgorithm
 {
@@ -7,16 +6,18 @@ public class AStarAlgorithm
     private int numCols;
     private Square hero;
     private ArrayList<Square> allSquares;
-    private ArrayList<Square> flags;
+    private Square flag;
     private ArrayList<Square> walls;
 
-    public AStarAlgorithm(int numRows, int numCols, Square hero, ArrayList<Square> flags, ArrayList<Square> walls)
+    public AStarAlgorithm(int numRows, int numCols, Square hero, Square flag, ArrayList<Square> walls, ArrayList<Square> allSquares)
     {
         this.numRows = numRows;
         this.numCols = numCols;
         this.hero = hero;
         this.walls = walls;
-        this.flags = flags;
+        this.flag = flag;
+        this.allSquares = allSquares;
+        /*
         for (int i = 0; i < numRows; i++)
         {
             for (int j = 0; j < numCols; j++)
@@ -32,6 +33,7 @@ public class AStarAlgorithm
                 }
             } //for j
         } //for i
+        */
     } //constructor
 
     public int calculateH(Square start, Square goal)
@@ -83,13 +85,49 @@ public class AStarAlgorithm
     {
         //update the child square
         child.setG(currSquare.getG() + 1);
-        child.setH(calculateH(currSquare, child));
+        child.setH(calculateH(child, flag));
         child.setParent(currSquare);
         child.setF(child.getG() + child.getH());
     } //updateSquare
 
-    public void processAStar()
+    public ArrayList<Square> processAStar(Square currSquare)
     {
-        
+        if ( !currSquare.isDone(flag) )
+        {
+            Comparator<Square> comparator = new ComparableSquare();
+            Queue<Square> open = new PriorityQueue<>(10000, comparator);
+            HashSet<Square> closed = new HashSet<>();
+            open.add(currSquare);
+            while ( !open.isEmpty() )
+            {
+                Square current = open.poll();
+                closed.add(current);
+                if (current.equals(flag))
+                    return getPath(current, flag);
+
+                for (Square newSquare : generateChildren(current))
+                {
+                    if ( !newSquare.isWall() && !closed.contains(newSquare) )
+                    {
+                        if ( open.contains(newSquare) )
+                        {
+                            if ( newSquare.getG() > current.getG() + 1)
+                                updateSquare(current, newSquare);
+                        }
+                        else
+                        {
+                            updateSquare(current, newSquare);
+                            open.add(newSquare);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            return getPath(currSquare, flag);
+        }
+        return null;
+
     }
 }

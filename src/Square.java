@@ -41,6 +41,17 @@ public class Square
         this.f = 0;
     }
 
+    public Square(int xCoor, int yCoor, boolean isWall)
+    {
+        this.xCoor = xCoor;
+        this.yCoor = yCoor;
+        this.isWall = isWall;
+        this.parent = parent;
+        this.g = 0;
+        this.h = 0;
+        this.f = 0;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -103,5 +114,22 @@ public class Square
     public void setF(int f)
     {
         this.f = f;
+    }
+
+    public int getF()
+    {
+        return f;
+    }
+
+    public boolean isDone(Square goal)
+    {
+        if (xCoor == goal.xCoor && yCoor == goal.yCoor)
+            return true;
+        return false;
+    }
+
+    public boolean isWall()
+    {
+        return isWall;
     }
 }
