@@ -8,6 +8,8 @@ public class AStarAlgorithm
     private ArrayList<Square> allSquares;
     private Square flag;
     private ArrayList<Square> walls;
+    private int numOfVistedSquares;
+    private int numOfConsideredOps;
 
     public AStarAlgorithm(int numRows, int numCols, Square hero, Square flag, ArrayList<Square> walls, ArrayList<Square> allSquares)
     {
@@ -17,6 +19,8 @@ public class AStarAlgorithm
         this.walls = walls;
         this.flag = flag;
         this.allSquares = allSquares;
+        numOfVistedSquares = 0;
+        numOfConsideredOps = 0;
         /*
         for (int i = 0; i < numRows; i++)
         {
@@ -69,15 +73,16 @@ public class AStarAlgorithm
     {
         Square square = end;
         ArrayList<Square> path = new ArrayList<>();
-        path.add(end);
+        path.add(square);
 
-        while ( !square.getParent().equals(start) )
+        while ( square.getParent() != null && !square.getParent().equals(start) )
         {
             square = square.getParent();
             path.add(square);
         }
-        path.add(start);
+        //path.add(start);
         Collections.reverse(path);
+        System.out.println(displayPath(path));
         return path;
     } //getPath
 
@@ -107,6 +112,7 @@ public class AStarAlgorithm
 
                 for (Square newSquare : generateChildren(current))
                 {
+
                     if ( !newSquare.isWall() && !closed.contains(newSquare) )
                     {
                         if ( open.contains(newSquare) )
@@ -126,8 +132,20 @@ public class AStarAlgorithm
         else
         {
             return getPath(currSquare, flag);
+            //System.out.println(displayPath(getPath(currSquare, flag)));
         }
+
         return null;
 
+    } //processAStar
+
+    public String displayPath(ArrayList<Square> path)
+    {
+        StringBuilder result = new StringBuilder();
+        for (Square curr : path)
+        {
+            result.append("(" + curr.getxCoor() + "," + curr.getyCoor() + "); ");
+        }
+        return result.toString();
     }
 }
