@@ -30,25 +30,7 @@ public class AStarAlgorithm
                 square.setOutput(0);
         }
         numOfVisitedSquares = 0;
-        //finalNumOfVisitedSquares = 0;
         numOfConsideredOps = 0;
-        /*
-        for (int i = 0; i < numRows; i++)
-        {
-            for (int j = 0; j < numCols; j++)
-            {
-                Square currSquare = new Square(i, j);
-                for (Square currWall : walls)
-                {
-                    if (currSquare.equals(currWall))
-                        currSquare.setIsWall(true);
-                    else
-                        currSquare.setIsWall(false);
-                    allSquares.add(currSquare);
-                }
-            } //for j
-        } //for i
-        */
     } //constructor
 
     public int calculateH(Square start, Square goal)
@@ -91,10 +73,8 @@ public class AStarAlgorithm
             square = square.getParent();
             path.add(square);
         }
-        //path.add(start);
+
         Collections.reverse(path);
-        //System.out.println(displayPath(path));
-        //System.out.println("number of visited squares: " + numOfVistedSquares);
         return path;
     } //getPath
 
@@ -110,62 +90,44 @@ public class AStarAlgorithm
     //public ArrayList<Square> processAStar(Square currSquare, ArrayList<Square> flags)
     public ArrayList<Square> processAStar(Square currSquare, Square goal)
     {
-        //ArrayList<Square> solution = new ArrayList<>();
-        //for (Square goal : flags)
-        //{
-            //solution = new ArrayList<>();
-            if ( !currSquare.isDone(goal) )
+        if ( !currSquare.isDone(goal) )
+        {
+            Comparator<Square> comparator = new ComparableSquare();
+            Queue<Square> open = new PriorityQueue<>(10000, comparator);
+            HashSet<Square> closed = new HashSet<>();
+            open.add(currSquare);
+            while ( !open.isEmpty() )
             {
-                Comparator<Square> comparator = new ComparableSquare();
-                Queue<Square> open = new PriorityQueue<>(10000, comparator);
-                HashSet<Square> closed = new HashSet<>();
-                open.add(currSquare);
-                while ( !open.isEmpty() )
+                Square current = open.poll();
+                closed.add(current);
+                if (current.equals(goal))
+                    return getPath(current, goal);
+
+                for (Square newSquare : generateChildren(current))
                 {
-                    Square current = open.poll();
-                    closed.add(current);
-                    if (current.equals(goal))
-                    {
-                        //solution = getPath(current, goal);
-                        //break;
-                        //finalNumOfVisitedSquares += numOfVisitedSquares;
-                        return getPath(current, goal);
-                    }
+                    numOfVisitedSquares++;
+                    newSquare.setOutput(newSquare.getOutput()+1);
+                    newSquare.setTotalOutput(newSquare.getTotalOutput()+1);
 
-                    for (Square newSquare : generateChildren(current))
+                    if ( !newSquare.isWall() && !closed.contains(newSquare) )
                     {
-                        numOfVisitedSquares++;
-                        //finalNumOfVisitedSquares += numOfVisitedSquares;
-                        newSquare.setOutput(newSquare.getOutput()+1);
-                        newSquare.setTotalOutput(newSquare.getTotalOutput()+1);
-
-                        if ( !newSquare.isWall() && !closed.contains(newSquare) )
+                        if ( open.contains(newSquare) )
                         {
-                            if ( open.contains(newSquare) )
-                            {
-                                if ( newSquare.getG() > current.getG() + 1)
-                                    updateSquare(current, newSquare, goal);
-                            }
-                            else
-                            {
+                            if ( newSquare.getG() > current.getG() + 1)
                                 updateSquare(current, newSquare, goal);
-                                open.add(newSquare);
-                            }
                         }
-                    } //for
-                } //while
-            }
-            else
-            {
-                return getPath(currSquare, goal);
-                //solution = getPath(currSquare, goal);
-                //break;
-            }
-        //} //for
-
+                        else
+                        {
+                            updateSquare(current, newSquare, goal);
+                            open.add(newSquare);
+                        }
+                    }
+                } //for
+            } //while
+        }
+        else
+            return getPath(currSquare, goal);
         return null;
-        //return solution;
-
     } //processAStar
 
     public String displayPath(ArrayList<Square> path)
