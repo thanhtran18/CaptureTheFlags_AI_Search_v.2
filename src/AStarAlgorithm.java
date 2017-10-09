@@ -1,6 +1,5 @@
 import java.util.*;
 
-//IF THIS DOESN't WORK, CHANGE TO THE ORIGINAL CONDITIONS OF GENERATE CHILDREN METHOD
 public class AStarAlgorithm
 {
     private int numRows;
@@ -8,21 +7,17 @@ public class AStarAlgorithm
     private Square hero;
     private ArrayList<Square> allSquares;
     private Square flag;
-    //private ArrayList<Square> flags;
     private ArrayList<Square> walls;
     private int numOfVisitedSquares;
-    private int finalNumOfVisitedSquares;
     private int numOfConsideredOps;
 
     public AStarAlgorithm(int numRows, int numCols, Square hero, Square flag, ArrayList<Square> walls, ArrayList<Square> allSquares)
-    //public AStarAlgorithm(int numRows, int numCols, Square hero, ArrayList<Square> flags, ArrayList<Square> walls, ArrayList<Square> allSquares)
     {
         this.numRows = numRows;
         this.numCols = numCols;
         this.hero = hero;
         this.walls = walls;
         this.flag = flag;
-        //this.flags = flags;
         this.allSquares = allSquares;
         for (Square square : allSquares)
         {
@@ -35,7 +30,8 @@ public class AStarAlgorithm
 
     public int calculateH(Square start, Square goal)
     {
-        return (Math.abs(start.getxCoor() - goal.getxCoor()) + Math.abs(start.getyCoor() - goal.getyCoor()));
+        int h = (Math.abs(start.getxCoor() - goal.getxCoor()) + Math.abs(start.getyCoor() - goal.getyCoor()));
+        return h;
     }
 
     public Square getSquare(int x, int y) //return a square from the square list
@@ -51,14 +47,22 @@ public class AStarAlgorithm
     public ArrayList<Square> generateChildren(Square curr)
     {
         ArrayList<Square> children = new ArrayList<>();
-        if ( curr.getyCoor() > 0 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()-1)) && getSquare(curr.getxCoor(), curr.getyCoor()-1).getOutput() == 0)
+        if ( curr.getyCoor() > 0 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()-1))
+                && getSquare(curr.getxCoor(), curr.getyCoor()-1).getOutput() == 0)
             children.add( getSquare(curr.getxCoor(), curr.getyCoor()-1) );
-        if ( curr.getyCoor() < numCols - 1 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()+1)) && getSquare(curr.getxCoor(), curr.getyCoor()+1).getOutput() == 00)
+
+        if ( curr.getyCoor() < numCols - 1 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()+1))
+                && getSquare(curr.getxCoor(), curr.getyCoor()+1).getOutput() == 00)
             children.add( getSquare(curr.getxCoor(), curr.getyCoor()+1) );
-        if ( curr.getxCoor() > 0 && !walls.contains(getSquare(curr.getxCoor() - 1, curr.getyCoor())) && getSquare(curr.getxCoor() - 1, curr.getyCoor()).getOutput() == 0)
+
+        if ( curr.getxCoor() > 0 && !walls.contains(getSquare(curr.getxCoor() - 1, curr.getyCoor()))
+                && getSquare(curr.getxCoor() - 1, curr.getyCoor()).getOutput() == 0)
             children.add( getSquare(curr.getxCoor() - 1, curr.getyCoor()) );
-        if ( curr.getxCoor() < numRows - 1 && !walls.contains( getSquare(curr.getxCoor() + 1, curr.getyCoor())) && getSquare(curr.getxCoor() + 1, curr.getyCoor()).getOutput() == 0)
+
+        if ( curr.getxCoor() < numRows - 1 && !walls.contains( getSquare(curr.getxCoor() + 1, curr.getyCoor()))
+                && getSquare(curr.getxCoor() + 1, curr.getyCoor()).getOutput() == 0)
             children.add( getSquare(curr.getxCoor() + 1, curr.getyCoor()) );
+
         return children;
     } //generateChildren
 
@@ -87,7 +91,6 @@ public class AStarAlgorithm
         child.setF(child.getG() + child.getH());
     } //updateSquare
 
-    //public ArrayList<Square> processAStar(Square currSquare, ArrayList<Square> flags)
     public ArrayList<Square> processAStar(Square currSquare, Square goal)
     {
         if ( !currSquare.isDone(goal) )
@@ -130,13 +133,9 @@ public class AStarAlgorithm
         return null;
     } //processAStar
 
-    public String displayPath(ArrayList<Square> path)
+    public String displaySolvedMaze()
     {
         StringBuilder result = new StringBuilder();
-        /*for (Square curr : path)
-        {
-            result.append("(" + curr.getxCoor() + "," + curr.getyCoor() + "); ");
-        }*/
         for (int i = 0; i < numRows; i++)
         {
             for (int j = 0; j < numCols; j++)
@@ -147,26 +146,16 @@ public class AStarAlgorithm
                 {
                     if (i == 0 && j == 0)
                         result.append("\n");
-                    //System.out.print("#");
                     result.append("#");
                 }
                 else
                     result.append(currSquare.getTotalOutput());
-                    //System.out.print(currSquare.getTotalOutput());
             }
-            //System.out.println();
             result.append("\n");
         }
-        //result.append("number of visited squares: " + finalNumOfVisitedSquares + "\n");
-        //System.out.println("number of visited squares: " + numOfVisitedSquares);
         return result.toString();
-    }
+    } //displaySolvedMaze
 
-
-    public int getFinalNumOfVisitedSquares()
-    {
-        return finalNumOfVisitedSquares;
-    }
 
     public int getNumOfVisitedSquares()
     {

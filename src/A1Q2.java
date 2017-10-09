@@ -5,11 +5,12 @@ import java.util.*;
 
 public class A1Q2 {
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         try
         {
             BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Enter the maze: ");
+            System.out.println("Enter the size of the maze (rows columns), then enter the maze on a new line: ");
             String line;
             String input = "";
             int lineCounter = 0;
@@ -22,7 +23,6 @@ public class A1Q2 {
             numCols = Integer.parseInt(size[1]);
             char[][] map = new char[numRows][numCols];
             ArrayList<Square> flags = new ArrayList<>();
-            //Square flag = new Square();
             Square hero = new Square();
             ArrayList<Square> allSquares = new ArrayList<>();
             ArrayList<Square> walls = new ArrayList<>();
@@ -52,8 +52,8 @@ public class A1Q2 {
                     }
                     else
                     {
-                        Square moveableSquare = new Square(lineCounter, j, false);
-                        allSquares.add(moveableSquare);
+                        Square movableSquare = new Square(lineCounter, j, false);
+                        allSquares.add(movableSquare);
                     }
                     j++;
                 }
@@ -62,7 +62,6 @@ public class A1Q2 {
                 lineCounter++;
             } //while
 
-            //AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flags, walls, allSquares);
             StringBuilder solutionMap = new StringBuilder();
             int visitedNodes = 0;
             int i = 1;
@@ -73,50 +72,65 @@ public class A1Q2 {
                 AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flag, walls, allSquares);
                 costs.put(flag, new Integer(solver.calculateH(hero, flag)));
             }
+            List<Square> sortedFlagList = getSortedFlags(costs);
 
-            List<Map.Entry<Square, Integer>> flagList = new LinkedList<>(costs.entrySet());
-            Collections.sort(flagList, new Comparator<Map.Entry<Square, Integer>>() {
-                @Override
-                public int compare(Map.Entry<Square, Integer> o1, Map.Entry<Square, Integer> o2)
-                {
-                    return (o1.getValue().compareTo(o2.getValue()));
-                }
-            });
+            int count = 0;
+            int numOfFlags = sortedFlagList.size();
 
-            HashMap<Square, Integer> sortedFlags = new LinkedHashMap<>();
-            for (Map.Entry<Square, Integer> flag : flagList)
+            while (count < numOfFlags)
             {
-                sortedFlags.put(flag.getKey(), flag.getValue());
-            }
-
-            List<Square> sortedFlagList = new ArrayList<>(sortedFlags.keySet());
-
-
-            for (Square flag : sortedFlagList)
-            {
+                Square flag = sortedFlagList.get(0);
                 AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flag, walls, allSquares);
-                ArrayList<Square> solution = solver.processAStar(hero, flag);
+                solver.processAStar(hero, flag);
                 hero = flag;
                 hero.setParent(null);
                 visitedNodes += solver.getNumOfVisitedSquares();
 
                 if (i == flags.size())
                 {
-
-                    solutionMap.append(solver.displayPath(solution));
-
+                    solutionMap.append(solver.displaySolvedMaze());
                     System.out.println(solutionMap.toString());
                 }
                 i++;
+                count++;
 
-            }
+                costs.remove(flag);
+                List<Square> remainingFlags = new ArrayList<>(costs.keySet());
+                HashMap<Square, Integer> remainingCosts = new HashMap();
+
+                for (Square nextFlag : remainingFlags)
+                {
+                    AStarAlgorithm nextSolver = new AStarAlgorithm(numRows, numCols, hero, nextFlag, walls, allSquares);
+                    remainingCosts.put(nextFlag, new Integer(nextSolver.calculateH(hero, nextFlag)));
+                }
+                sortedFlagList = getSortedFlags(remainingCosts);
+            } //why
             System.out.println("Number of visited nodes: " + visitedNodes);
-            //solver.processAStar(hero, flags);
-
         } //try
         catch (IOException ioe)
         {
             System.out.println(ioe.getMessage());
         }
+    }
+
+    public static List<Square> getSortedFlags(Map<Square, Integer> costs)
+    {
+        List<Map.Entry<Square, Integer>> flagList = new LinkedList<>(costs.entrySet());
+        Collections.sort(flagList, new Comparator<Map.Entry<Square, Integer>>() {
+            @Override
+            public int compare(Map.Entry<Square, Integer> o1, Map.Entry<Square, Integer> o2)
+            {
+                return (o1.getValue().compareTo(o2.getValue()));
+            }
+        });
+
+        HashMap<Square, Integer> sortedFlags = new LinkedHashMap<>();
+        for (Map.Entry<Square, Integer> flag : flagList)
+        {
+            sortedFlags.put(flag.getKey(), flag.getValue());
+        }
+
+        List<Square> sortedFlagList = new ArrayList<>(sortedFlags.keySet());
+        return sortedFlagList;
     }
 }
