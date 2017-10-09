@@ -1,7 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.*;
 
 public class A1Q2 {
 
@@ -66,7 +66,33 @@ public class A1Q2 {
             StringBuilder solutionMap = new StringBuilder();
             int visitedNodes = 0;
             int i = 1;
+
+            HashMap<Square, Integer> costs = new HashMap();
             for (Square flag : flags)
+            {
+                AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flag, walls, allSquares);
+                costs.put(flag, new Integer(solver.calculateH(hero, flag)));
+            }
+
+            List<Map.Entry<Square, Integer>> flagList = new LinkedList<>(costs.entrySet());
+            Collections.sort(flagList, new Comparator<Map.Entry<Square, Integer>>() {
+                @Override
+                public int compare(Map.Entry<Square, Integer> o1, Map.Entry<Square, Integer> o2)
+                {
+                    return (o1.getValue().compareTo(o2.getValue()));
+                }
+            });
+
+            HashMap<Square, Integer> sortedFlags = new LinkedHashMap<>();
+            for (Map.Entry<Square, Integer> flag : flagList)
+            {
+                sortedFlags.put(flag.getKey(), flag.getValue());
+            }
+
+            List<Square> sortedFlagList = new ArrayList<>(sortedFlags.keySet());
+
+
+            for (Square flag : sortedFlagList)
             {
                 AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flag, walls, allSquares);
                 ArrayList<Square> solution = solver.processAStar(hero, flag);
