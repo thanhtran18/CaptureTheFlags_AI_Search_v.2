@@ -49,20 +49,31 @@ public class AStarAlgorithm
         ArrayList<Square> children = new ArrayList<>();
         if ( curr.getyCoor() > 0 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()-1))
                 && getSquare(curr.getxCoor(), curr.getyCoor()-1).getOutput() == 0)
-            children.add( getSquare(curr.getxCoor(), curr.getyCoor()-1) );
+        {
+            if (curr.getParent() == null || (curr.getParent() != null && !getSquare(curr.getxCoor(), curr.getyCoor() - 1).equals(curr.getParent())))
+                children.add(getSquare(curr.getxCoor(), curr.getyCoor() - 1));
+        }
 
         if ( curr.getyCoor() < numCols - 1 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor()+1))
-                && getSquare(curr.getxCoor(), curr.getyCoor()+1).getOutput() == 00)
-            children.add( getSquare(curr.getxCoor(), curr.getyCoor()+1) );
+                && getSquare(curr.getxCoor(), curr.getyCoor()+1).getOutput() == 0)
+        {
+            if (curr.getParent() == null || (curr.getParent() != null && !getSquare(curr.getxCoor(), curr.getyCoor()+1).equals(curr.getParent())))
+                children.add(getSquare(curr.getxCoor(), curr.getyCoor() + 1));
+        }
 
         if ( curr.getxCoor() > 0 && !walls.contains(getSquare(curr.getxCoor() - 1, curr.getyCoor()))
                 && getSquare(curr.getxCoor() - 1, curr.getyCoor()).getOutput() == 0)
-            children.add( getSquare(curr.getxCoor() - 1, curr.getyCoor()) );
+        {
+            if (curr.getParent() == null || (curr.getParent() != null  && !getSquare(curr.getxCoor() - 1, curr.getyCoor()).equals(curr.getParent())))
+                children.add(getSquare(curr.getxCoor() - 1, curr.getyCoor()));
+        }
 
         if ( curr.getxCoor() < numRows - 1 && !walls.contains( getSquare(curr.getxCoor() + 1, curr.getyCoor()))
                 && getSquare(curr.getxCoor() + 1, curr.getyCoor()).getOutput() == 0)
-            children.add( getSquare(curr.getxCoor() + 1, curr.getyCoor()) );
-
+        {
+            if (curr.getParent() == null || (curr.getParent() != null  && !getSquare(curr.getxCoor() + 1, curr.getyCoor()).equals(curr.getParent())))
+                children.add(getSquare(curr.getxCoor() + 1, curr.getyCoor()));
+        }
         return children;
     } //generateChildren
 
@@ -74,6 +85,7 @@ public class AStarAlgorithm
 
         while ( square.getParent() != null && !square.getParent().equals(start) )
         {
+            //PROBLEM HERE, PARENT GET LOOPED
             square = square.getParent();
             path.add(square);
         }
@@ -82,19 +94,22 @@ public class AStarAlgorithm
         return path;
     } //getPath
 
-    public void updateSquare(Square currSquare, Square child, Square goal)
+    public int updateSquare(Square currSquare, Square child, Square goal)
     {
         //update the child square
         child.setG(currSquare.getG() + 1);
         child.setH(calculateH(child, goal));
         child.setParent(currSquare);
         child.setF(child.getG() + child.getH());
+        return child.getG() + child.getH();
     } //updateSquare
 
-    public ArrayList<Square> processAStar(Square currSquare, Square goal)
+    public ArrayList<Square> processAStar(Square currSquare, Square goal, ArrayList<Square> flags)
     {
+
         if ( !currSquare.isDone(goal) )
         {
+
             Comparator<Square> comparator = new ComparableSquare();
             Queue<Square> open = new PriorityQueue<>(10000, comparator);
             HashSet<Square> closed = new HashSet<>();
@@ -104,13 +119,59 @@ public class AStarAlgorithm
                 Square current = open.poll();
                 closed.add(current);
                 if (current.equals(goal))
-                    return getPath(current, goal);
+                {
+                    //return getPath(current, goal);
+                    //return null;
+
+                    for (Square square : allSquares)
+                    {
+                        square.setParent(null);
+                    }
+                    flags.remove(goal);
+                    open = new PriorityQueue<>(10000, comparator);
+                    closed = new HashSet<>();
+                    open.add(current);
+
+                }
+
 
                 for (Square newSquare : generateChildren(current))
                 {
+                    //************
+                    HashMap<Square, Integer> costs = new HashMap();
+                    for (Square flag : flags)
+                    {
+                        ArrayList<Square> goalChildren = generateChildren(flag);
+                        AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, newSquare, flag, walls, allSquares);
+                        costs.put(flag, new Integer(updateSquare(current, newSquare, flag)));
+                        if (newSquare.equals(flag) || (goalChildren.isEmpty() && flag.getParent() == null))
+                        {
+                            current = newSquare;
+                            flags.remove(flag);
+                            for (Square square : allSquares)
+                                square.setParent(null);
+                            break;
+
+                        }
+
+                        //AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, newSquare, flag, walls, allSquares);
+                        //costs.put(flag, new Integer(updateSquare(current, newSquare, flag)));
+                    }
+                    List<Square> sortedFlagList = A1Q2.getSortedFlags(costs);
+                    if (!flags.isEmpty() && !goal.equals(sortedFlagList.get(0)))
+                        goal = sortedFlagList.get(0);
+                        //processAStar(newSquare, sortedFlagList.get(0), flags);
+                    //if (flags.isEmpty())
+                    //    return null;
+
+
+                    //************
                     numOfVisitedSquares++;
                     newSquare.setOutput(newSquare.getOutput()+1);
                     newSquare.setTotalOutput(newSquare.getTotalOutput()+1);
+
+                    if (flags.isEmpty())
+                        return null;
 
                     if ( !newSquare.isWall() && !closed.contains(newSquare) )
                     {
@@ -125,11 +186,14 @@ public class AStarAlgorithm
                             open.add(newSquare);
                         }
                     }
+
                 } //for
             } //while
         }
         else
-            return getPath(currSquare, goal);
+            flags.remove(goal);
+            //return null;
+            //return getPath(currSquare, goal);
         return null;
     } //processAStar
 

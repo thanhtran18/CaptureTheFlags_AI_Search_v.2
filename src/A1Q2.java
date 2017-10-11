@@ -1,3 +1,5 @@
+
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,8 +12,9 @@ public class A1Q2 {
         try
         {
             BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Enter the size of the maze (rows columns), then enter the maze on a new line: ");
+            System.out.println("Please enter the size of the maze (rows columns) (the press enter), then enter the maze on a new line: ");
             String line;
+
             String input = "";
             int lineCounter = 0;
             String[] size = new String[2];
@@ -76,12 +79,19 @@ public class A1Q2 {
 
             int count = 0;
             int numOfFlags = sortedFlagList.size();
-
+            Square flag = sortedFlagList.get(0);
+            AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flag, walls, allSquares);
+            //solver.processAStar(hero, flag);
+            solver.processAStar(hero, flag, flags);
+            solutionMap.append(solver.displaySolvedMaze());
+            System.out.println(solutionMap.toString());
+/*
             while (count < numOfFlags)
             {
                 Square flag = sortedFlagList.get(0);
                 AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flag, walls, allSquares);
-                solver.processAStar(hero, flag);
+                //solver.processAStar(hero, flag);
+                solver.processAStar(hero, flag, flags);
                 hero = flag;
                 hero.setParent(null);
                 visitedNodes += solver.getNumOfVisitedSquares();
@@ -105,7 +115,8 @@ public class A1Q2 {
                 }
                 sortedFlagList = getSortedFlags(remainingCosts);
             } //why
-            System.out.println("Number of visited nodes: " + visitedNodes);
+            */
+            System.out.println("Number of visited nodes: " + solver.getNumOfVisitedSquares());
         } //try
         catch (IOException ioe)
         {
