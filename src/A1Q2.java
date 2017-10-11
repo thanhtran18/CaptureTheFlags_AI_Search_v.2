@@ -12,56 +12,71 @@ public class A1Q2 {
         try
         {
             BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Please enter the size of the maze (rows columns) (the press enter), then enter the maze on a new line: ");
+            //Scanner sc = new Scanner(System.in);
+            System.out.println("Please enter the size and the maze:");
             String line;
 
             String input = "";
             int lineCounter = 0;
             String[] size = new String[2];
-            int numRows;
-            int numCols;
-            line = stdin.readLine();
-            size = line.split(" ");
-            numRows = Integer.parseInt(size[0]);
-            numCols = Integer.parseInt(size[1]);
-            char[][] map = new char[numRows][numCols];
+            int numRows = 0;
+            int numCols = 0;
+            //line = stdin.readLine();
+            //size = line.split(" ");
+            //numRows = Integer.parseInt(size[0]);
+            //numCols = Integer.parseInt(size[1]);
+            //char[][] map = new char[numRows][numCols];
             ArrayList<Square> flags = new ArrayList<>();
             Square hero = new Square();
             ArrayList<Square> allSquares = new ArrayList<>();
             ArrayList<Square> walls = new ArrayList<>();
 
-            while (lineCounter < numRows && (line = stdin.readLine()) != null)
+            while ((line = stdin.readLine()) != null  && lineCounter <= numRows)//&& line.length() != 0)//)
+            //while (sc.hasNextLine())
             {
-                int j = 0;
-                while (j < numCols)
+                //line = stdin.nextLine();
+                if (lineCounter == 0)
                 {
-                    map[lineCounter][j] = line.charAt(j);
-                    if (map[lineCounter][j] == '!')
-                    {
-                        Square flag = new Square(lineCounter, j, false);
-                        flags.add(flag);
-                        allSquares.add(flag);
-                    }
-                    else if (map[lineCounter][j] == 'h')
-                    {
-                        hero = new Square(lineCounter, j, false);
-                        allSquares.add(hero);
-                    }
-                    else if (map[lineCounter][j] == '#')
-                    {
-                        Square wall = new Square(lineCounter, j, true);
-                        walls.add(wall);
-                        allSquares.add(wall);
-                    }
-                    else
-                    {
-                        Square movableSquare = new Square(lineCounter, j, false);
-                        allSquares.add(movableSquare);
-                    }
-                    j++;
+                    size = line.split(" ");
+                    numRows = Integer.parseInt(size[0]);
+                    numCols = Integer.parseInt(size[1]);
+                    //lineCounter++;
                 }
+                else
+                {
+                    char[][] map = new char[numRows][numCols];
+                    int j = 0;
+                    while (j < numCols)
+                    {
+                        map[lineCounter-1][j] = line.charAt(j);
+                        if (map[lineCounter-1][j] == '!')
+                        {
+                            Square flag = new Square(lineCounter-1, j, false);
+                            flags.add(flag);
+                            allSquares.add(flag);
+                        }
+                        else if (map[lineCounter-1][j] == 'h')
+                        {
+                            hero = new Square(lineCounter-1, j, false);
+                            allSquares.add(hero);
+                        }
+                        else if (map[lineCounter-1][j] == '#')
+                        {
+                            Square wall = new Square(lineCounter-1, j, true);
+                            walls.add(wall);
+                            allSquares.add(wall);
+                        }
+                        else
+                        {
+                            Square movableSquare = new Square(lineCounter-1, j, false);
+                            allSquares.add(movableSquare);
+                        }
+                        j++;
+                    }
+                    input += line + "\n";
+                } //big else
 
-                input += line + "\n";
+                //input += line + "\n";
                 lineCounter++;
             } //while
 
@@ -75,7 +90,8 @@ public class A1Q2 {
             int visitedNodes = 0;
             int i = 1;
 
-            HashMap<Square, Integer> costs = new HashMap();
+            System.out.println("A* Algorithm is attempting to to capture the flags:");
+            HashMap<Square, Integer> costs = new HashMap<Square, Integer>();
             for (Square flag : flags)
             {
                 AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, hero, flag, walls, allSquares);
