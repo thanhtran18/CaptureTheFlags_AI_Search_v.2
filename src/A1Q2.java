@@ -65,6 +65,12 @@ public class A1Q2 {
                 lineCounter++;
             } //while
 
+            if (flags.isEmpty())
+            {
+                System.out.println("There is no flags on the map!!!");
+                System.exit(0);
+            }
+
             StringBuilder solutionMap = new StringBuilder();
             int visitedNodes = 0;
             int i = 1;
@@ -117,6 +123,7 @@ public class A1Q2 {
             } //why
             */
             System.out.println("Number of visited nodes: " + solver.getNumOfVisitedSquares());
+            System.out.println("Operation considered: " + solver.getNumOfConsideredOps());
         } //try
         catch (IOException ioe)
         {
