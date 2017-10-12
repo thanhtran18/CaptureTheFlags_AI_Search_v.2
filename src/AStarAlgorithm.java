@@ -1,16 +1,30 @@
+//-----------------------------------------
+// CLASS: AStarAlgorithm
+//
+// Author: Cong Thanh Tran
+//
+// REMARKS: A class that contains all methods needed to solve the problem by A* algorithm
+//
+//-----------------------------------------
+
 import java.util.*;
 
 public class AStarAlgorithm
 {
-    private int numRows;
-    private int numCols;
-    private Square hero;
-    private ArrayList<Square> allSquares;
-    private Square flag;
-    private ArrayList<Square> walls;
+    private int numRows;                    //number of rows of the map
+    private int numCols;                    //number of columns of the map
+    private Square hero;                    //the hero square
+    private ArrayList<Square> allSquares;   //a list contains all the square of the map (or it is the map)
+    private Square flag;                    //the current flag
+    private ArrayList<Square> walls;        //a list of all the walls
     private int numOfVisitedSquares;
     private int numOfConsideredOps;
 
+    //------------------------------------------------------
+    // AStarAlgorithm Constructor
+    //
+    // PURPOSE:	Initializes this object
+    //------------------------------------------------------
     public AStarAlgorithm(int numRows, int numCols, Square hero, Square flag, ArrayList<Square> walls, ArrayList<Square> allSquares)
     {
         this.numRows = numRows;
@@ -28,13 +42,31 @@ public class AStarAlgorithm
         numOfConsideredOps = 0;
     } //constructor
 
+    //------------------------------------------------------
+    // calculateH
+    //
+    // PURPOSE:	calculate the heuristic cost of the state using Manhattan distance
+    // PARAMETERS:
+    //      Square : start state (or square)
+    //      Square : goal state (or the flag square)
+    // Returns: the heuristic cost
+    //------------------------------------------------------
     public int calculateH(Square start, Square goal)
     {
         int h = (Math.abs(start.getxCoor() - goal.getxCoor()) + Math.abs(start.getyCoor() - goal.getyCoor()));
         return h;
     }
 
-    public Square getSquare(int x, int y) //return a square from the square list
+    //------------------------------------------------------
+    // calculateH
+    //
+    // PURPOSE:	return the wanted square from the list of all squares in the map
+    // PARAMETERS:
+    //      int: x coordinate of the wanted square
+    //      int: y coordinate of the wanted square
+    // Returns: the wanted square
+    //------------------------------------------------------
+    public Square getSquare(int x, int y)
     {
         for (Square currSquare : allSquares)
         {
@@ -44,8 +76,16 @@ public class AStarAlgorithm
         return null;
     } //getSquare
 
+    //------------------------------------------------------
+    // generateChildren
+    //
+    // PURPOSE:	generate all possible children
+    // PARAMETERS: none
+    // Returns: a list of all children
+    //------------------------------------------------------
     public ArrayList<Square> generateChildren(Square curr)
     {
+        //check the case if the possible child is surrounded by 3 walls and 1 movable square (prevent cycle)
         ArrayList<Square> possibleChildren = new ArrayList<>();
         ArrayList<Square> children = new ArrayList<>();
         possibleChildren.add(getSquare(curr.getxCoor(), curr.getyCoor()-1));
@@ -58,10 +98,12 @@ public class AStarAlgorithm
             if (currSquare.isWall())
                 numOfWalls++;
         }
+
         if (numOfWalls == 3 && curr.getParent() != null)
         {
             children.add(curr.getParent());
         }
+        //if not, then generate all possible children (maximum 4)
         else
         {
             if (curr.getyCoor() > 0 && !walls.contains(getSquare(curr.getxCoor(), curr.getyCoor() - 1))
@@ -98,27 +140,16 @@ public class AStarAlgorithm
         }
         return children;
     } //generateChildren
-/*
-    public ArrayList<Square> getPath(Square start, Square end)
-    {
-        Square square = end;
-        ArrayList<Square> path = new ArrayList<>();
-        path.add(square);
 
-        while ( square.getParent() != null && !square.getParent().equals(start) )
-        {
-            //PROBLEM HERE, PARENT GET LOOPED
-            square = square.getParent();
-            path.add(square);
-        }
-
-        Collections.reverse(path);
-        return path;
-    } //getPath
-*/
+    //------------------------------------------------------
+    // updateSquare
+    //
+    // PURPOSE:	update the function cost of the child
+    // PARAMETERS: current square, child square, and goal square
+    // Returns: the function cost
+    //------------------------------------------------------
     public int updateSquare(Square currSquare, Square child, Square goal)
     {
-        //update the child square
         child.setG(currSquare.getG() + 1);
         child.setH(calculateH(child, goal));
         child.setParent(currSquare);
@@ -126,9 +157,16 @@ public class AStarAlgorithm
         return child.getG() + child.getH();
     } //updateSquare
 
+    //------------------------------------------------------
+    // processAStar
+    //
+    // PURPOSE:	solves the problem using A* algorithm (A* algorithm implementation)
+    // PARAMETERS: current square, goal square (flag), and list of all flags to check which one will be the best flag
+    //              to reach at current state
+    // Returns a ProblemState which is the result
+    //------------------------------------------------------
     public ArrayList<Square> processAStar(Square currSquare, Square goal, ArrayList<Square> flags)
     {
-
         currSquare.setOutput(currSquare.getOutput()+1);
         currSquare.setTotalOutput(currSquare.getTotalOutput()+1);
         numOfVisitedSquares++;
@@ -146,112 +184,101 @@ public class AStarAlgorithm
                 closed.add(current);
                 if (current.equals(goal))
                 {
-                    //return getPath(current, goal);
-                    //return null;
-
+                    //reset the parents of all squares to null to start finding path to the new flag
                     for (Square square : allSquares)
-                    {
                         square.setParent(null);
-                    }
+
+                    //reset the problem to be ready to the new flag
                     flags.remove(goal);
                     open = new PriorityQueue<>(10000, comparator);
                     closed = new HashSet<>();
                     open.add(current);
-
                 }
 
+                ArrayList<Square> possibleChildren = generateChildren(current);
+                numOfConsideredOps += numOfVisitedSquares + possibleChildren.size();
+                Square newSquare = current;
+                if (!possibleChildren.isEmpty())
+                {
+                    int minCost = updateSquare(current, possibleChildren.get(0), goal);
+                    newSquare = possibleChildren.get(0);
 
-                    ArrayList<Square> possibleChildren = generateChildren(current);
-                    Square newSquare = current;//= new Square()
-                    //Square oldParent = null;
-                    if (!possibleChildren.isEmpty())
+                    //choose the best child in all the possible children, which is the one with the lowest cost
+                    for (Square child : possibleChildren)
                     {
-                        //int minCost = calculateH(possibleChildren.get(0), goal);
-                        //if (current.getParent() != null && current.getParent().getParent() != null )
-                        //    oldParent = current.getParent().getParent();
-                        int minCost = updateSquare(current, possibleChildren.get(0), goal);
-                        newSquare = possibleChildren.get(0);
-                        for (Square child : possibleChildren)
+                        if (updateSquare(current, child, goal) < minCost)
                         {
-                            numOfConsideredOps++;
-                            if (updateSquare(current, child, goal) < minCost)
-                            //if (calculateH(child, goal) < minCost)
-                            {
-                                minCost = child.getF();
-                                newSquare = child;
-                            }
+                            minCost = child.getF();
+                            newSquare = child;
                         }
                     }
-                    if (current.getParent() != null && newSquare.equals(current.getParent()))
+                }
+                //prevent cycle
+                if (current.getParent() != null && newSquare.equals(current.getParent()))
+                {
+                    closed.add(current);
+                    closed.remove(newSquare);
+                }
+
+                HashMap<Square, Integer> costs = new HashMap();
+                for (Square flag : flags)
+                {
+                    ArrayList<Square> goalChildren = generateChildren(flag);
+
+                    AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, newSquare, flag, walls, allSquares);
+                    costs.put(flag, new Integer(updateSquare(current, newSquare, flag)));
+                    //check if get to the flag as the next child
+                    if (newSquare.equals(flag) || (goalChildren.isEmpty() && flag.getParent() == null))
                     {
-                        closed.add(current);
-                        //newSquare.setParent(oldParent);
-                        closed.remove(newSquare);
+                        current = newSquare;
+                        flags.remove(flag);
+                        for (Square square : allSquares)
+                            square.setParent(null);
+                        break;
                     }
-                        //current = newSquare;
+                }
 
-                    //************
-                    HashMap<Square, Integer> costs = new HashMap();
-                    for (Square flag : flags)
+                //get the closest flag to find path there
+                List<Square> sortedFlagList = A1Q2.getSortedFlags(costs);
+                if (!flags.isEmpty() && !goal.equals(sortedFlagList.get(0)))
+                    goal = sortedFlagList.get(0);
+
+                //update output
+                numOfVisitedSquares++;
+                newSquare.setOutput(newSquare.getOutput() + 1);
+                newSquare.setTotalOutput(newSquare.getTotalOutput() + 1);
+
+                //if there is no flag in the map
+                if (flags.isEmpty())
+                    return null;
+
+                if (!newSquare.isWall() && !closed.contains(newSquare))
+                {
+                    if (open.contains(newSquare))
                     {
-                        ArrayList<Square> goalChildren = generateChildren(flag);
-
-
-                        AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, newSquare, flag, walls, allSquares);
-                        costs.put(flag, new Integer(updateSquare(current, newSquare, flag)));
-                        if (newSquare.equals(flag) || (goalChildren.isEmpty() && flag.getParent() == null))
-                        {
-                            current = newSquare;
-                            flags.remove(flag);
-                            for (Square square : allSquares)
-                                square.setParent(null);
-                            break;
-
-                        }
-
-                        //AStarAlgorithm solver = new AStarAlgorithm(numRows, numCols, newSquare, flag, walls, allSquares);
-                        //costs.put(flag, new Integer(updateSquare(current, newSquare, flag)));
-                    }
-                    List<Square> sortedFlagList = A1Q2.getSortedFlags(costs);
-                    if (!flags.isEmpty() && !goal.equals(sortedFlagList.get(0)))
-                        goal = sortedFlagList.get(0);
-                    //processAStar(newSquare, sortedFlagList.get(0), flags);
-                    //if (flags.isEmpty())
-                    //    return null;
-
-
-                    //************
-                    numOfVisitedSquares++;
-                    newSquare.setOutput(newSquare.getOutput() + 1);
-                    newSquare.setTotalOutput(newSquare.getTotalOutput() + 1);
-
-                    if (flags.isEmpty())
-                        return null;
-
-                    if (!newSquare.isWall() && !closed.contains(newSquare))
-                    {
-                        if (open.contains(newSquare))
-                        {
-                            if (newSquare.getG() > current.getG() + 1)
-                                updateSquare(current, newSquare, goal);
-                        }
-                        else
-                        {
+                        if (newSquare.getG() > current.getG() + 1)
                             updateSquare(current, newSquare, goal);
-                            open.add(newSquare);
-                        }
                     }
-                //}
-                //} //for generateChildren
+                    else
+                    {
+                        updateSquare(current, newSquare, goal);
+                        open.add(newSquare);
+                    }
+                }
             } //while
         }
         else
             flags.remove(goal);
-            //return null;
-            //return getPath(currSquare, goal);
         return null;
     } //processAStar
 
+    //------------------------------------------------------
+    // displaySolvedMaze
+    //
+    // PURPOSE:	display the map properly after solving
+    // PARAMETERS: None
+    // Returns: the output
+    //------------------------------------------------------
     public String displaySolvedMaze()
     {
         StringBuilder result = new StringBuilder();

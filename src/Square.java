@@ -1,15 +1,30 @@
+//-----------------------------------------
+// CLASS: Square
+//
+// Author: Cong Thanh Tran
+//
+// REMARKS: A class that contains every necessary information for a a square
+//-----------------------------------------
+
 public class Square
 {
-    private int xCoor;
-    private int yCoor;
-    private boolean isWall;
-    private Square parent;
-    private int f;
-    private int g;
-    private int h;
+    private int xCoor;      //the row that the current square belongs to
+    private int yCoor;      //the column that the current square belongs to
+    private boolean isWall; //true if the current square is a wall
+    private Square parent;  //previous square
+    private int f;          //function cost = g + h
+    private int g;          //actual cost from previous square to current square
+    private int h;          //heuristic cost to the flag
     private int output;
-    private int totalOutput;
+    private int totalOutput;//how many time it has been visited
 
+    //------------------------------------------------------
+    // Square Constructor
+    //
+    // PURPOSE:	Initializes this object
+    // PARAMETERS: None
+    // Returns: None
+    //------------------------------------------------------
     public Square()
     {
         xCoor = 0;
@@ -31,6 +46,13 @@ public class Square
         }
     }
 
+    //------------------------------------------------------
+    // Square Constructor
+    //
+    // PURPOSE:	Initializes this object
+    // PARAMETERS:
+    // Returns: None
+    //------------------------------------------------------
     public Square(int xCoor, int yCoor, boolean isWall, Square parent, int g, int h)
     {
         this.xCoor = xCoor;
@@ -52,6 +74,13 @@ public class Square
         }
     }
 
+    //------------------------------------------------------
+    // Square Constructor
+    //
+    // PURPOSE:	Initializes this object
+    // PARAMETERS: None
+    // Returns: None
+    //------------------------------------------------------
     public Square(int xCoor, int yCoor)
     {
         this.xCoor = xCoor;
@@ -73,6 +102,13 @@ public class Square
         }
     }
 
+    //------------------------------------------------------
+    // Square Constructor
+    //
+    // PURPOSE:	Initializes this object
+    // PARAMETERS: None
+    // Returns: None
+    //------------------------------------------------------
     public Square(int xCoor, int yCoor, boolean isWall)
     {
         this.xCoor = xCoor;
@@ -94,6 +130,14 @@ public class Square
         }
     }
 
+    //------------------------------------------------------
+    // equals (override)
+    //
+    // PURPOSE:	check if the two square are actually the same one by comparing their coordinates
+    // PARAMETERS:
+    //      Object: the square will be compared with
+    // Returns: the true if they are the same, false otherwise
+    //------------------------------------------------------
     @Override
     public boolean equals(Object o)
     {
@@ -101,6 +145,27 @@ public class Square
         if (xCoor == ((Square) o).xCoor && yCoor == ((Square) o).yCoor)
             result = true;
         return result;
+    }
+
+    //------------------------------------------------------
+    // isDone
+    //
+    // PURPOSE:	check if the current square is the flag
+    // PARAMETERS:
+    //      Square: the flag will be checked with
+    // Returns: the true if current square is the flag, false otherwise
+    //------------------------------------------------------
+    public boolean isDone(Square goal)
+    {
+        if (xCoor == goal.xCoor && yCoor == goal.yCoor)
+            return true;
+        return false;
+    }
+
+    //All necessary Mutators and Accessors to all the instance variables of this object
+    public boolean isWall()
+    {
+        return isWall;
     }
 
     public void setIsWall(boolean isWall)
@@ -163,18 +228,6 @@ public class Square
         return f;
     }
 
-    public boolean isDone(Square goal)
-    {
-        if (xCoor == goal.xCoor && yCoor == goal.yCoor)
-            return true;
-        return false;
-    }
-
-    public boolean isWall()
-    {
-        return isWall;
-    }
-
     public int getOutput()
     {
         return output;
@@ -194,4 +247,4 @@ public class Square
     {
         return totalOutput;
     }
-}
+} //class
