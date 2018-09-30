@@ -1,9 +1,5 @@
 //-----------------------------------------
-// CLASS: Square
-//
-// Author: Cong Thanh Tran
-//
-// REMARKS: A class that contains every necessary information for a a square
+// every necessary information for a a square
 //-----------------------------------------
 
 public class Square
