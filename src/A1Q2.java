@@ -1,9 +1,4 @@
 //-----------------------------------------
-// NAME		    : CONG THANH TRAN
-// COURSE		: COMP 3190 - Introduction to Artificial Intelligence
-// INSTRUCTOR	: JOHN BRAICO
-// ASSIGNMENT	: assignment #1
-// QUESTION	    : question #2
 //
 // REMARKS: Trying to solve the Capture the Flags problem with the minimum time.
 //
@@ -16,14 +11,6 @@ import java.util.*;
 
 public class A1Q2
 {
-    //------------------------------------------------------
-    // main
-    //
-    // PURPOSE:	main method - gets things going
-    // PARAMETERS:
-    //		String[]: commandline argument list
-    // Returns: none
-    //------------------------------------------------------
     public static void main(String[] args)
     {
         try
