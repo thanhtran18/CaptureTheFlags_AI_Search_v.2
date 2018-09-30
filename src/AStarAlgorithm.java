@@ -1,7 +1,4 @@
 //-----------------------------------------
-// CLASS: AStarAlgorithm
-//
-// Author: Cong Thanh Tran
 //
 // REMARKS: A class that contains all methods needed to solve the problem by A* algorithm
 //
