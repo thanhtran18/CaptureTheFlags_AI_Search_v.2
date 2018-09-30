@@ -1,12 +1,3 @@
-//-----------------------------------------
-// CLASS: ComparableSquare
-//
-// Author: Cong Thanh Tran
-//
-// REMARKS: implemented in order to work with the queue
-//
-//-----------------------------------------
-
 import java.util.Comparator;
 
 public class ComparableSquare implements Comparator<Square>
